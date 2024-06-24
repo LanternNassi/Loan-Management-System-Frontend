@@ -1,78 +1,70 @@
-import './App.css'
-import { Route, Routes} from 'react-router-dom';
+import "./App.css";
+import { Route, Routes, Navigate } from "react-router-dom";
+// import { BrowserRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
 
-import Dashboard from './pages/Dashboard/Dashboard';
-import Clients from './pages/Clients/Clients';
-import Loans from './pages/Loans/Loans';
-import LoanApplications from './pages/Applications/LoanApplications';
-import LoanDisbursments from './pages/Disbursments/LoanDisbursments';
-import LoanRepayments from './pages/Repayments/LoanRepayments';
+import Dashboard from "./pages/Dashboard/Dashboard";
+import Clients from "./pages/Clients/Clients";
+import Loans from "./pages/Loans/Loans";
+import LoanApplications from "./pages/Applications/LoanApplications";
+import LoanDisbursments from "./pages/Disbursments/LoanDisbursments";
+import LoanRepayments from "./pages/Repayments/LoanRepayments";
+import Login from "./pages/Auth/Login";
 
+import { useSelector, useDispatch } from "react-redux";
 
+const ProtectedRoute = ({ element, ...rest }) => {
+  // const { User } = useSelector((state) => state.AppReducer);
+  const User = localStorage.getItem("User");
+  return User ? element : <Navigate to="/login" />;
+};
 
 function App() {
+  const dispatch = useDispatch();
+
+  dispatch({ type: "add_login_info", User: localStorage.getItem("User") });
+  dispatch({
+    type: "add_token",
+    token: JSON.parse(localStorage.getItem("User")) ? JSON.parse(localStorage.getItem("User")).token : null,
+  });
 
   return (
     <>
-    <Routes>
-      <Route
-        index
-        element={
-          <>
-            <Dashboard/>
-          </>
-        }
-      />
+      <Routes>
+        <Route index element={<ProtectedRoute element={<Dashboard />} />} />
 
-      <Route
-        path="/clients"
-        element={
-          <>
-            <Clients/>
-          </>
-        }
-      />
+        <Route
+          path="/login"
+          element={
+            <>
+              <Login />
+            </>
+          }
+        />
 
-      <Route
-        path="/Loans"
-        element={
-          <>
-            <Loans/>
-          </>
-        }
-      />
+        <Route
+          path="/clients"
+          element={<ProtectedRoute element={<Clients />} />}
+        />
 
-      <Route
-        path="/LoanApplications"
-        element={
-          <>
-            <LoanApplications/>
-          </>
-        }
-      />
+        <Route path="/Loans" element={<ProtectedRoute element={<Loans />} />} />
 
-      <Route
-        path="/LoanDisbursments"
-        element={
-          <>
-            <LoanDisbursments/>
-          </>
-        }
-      />
+        <Route
+          path="/LoanApplications"
+          element={<ProtectedRoute element={<LoanApplications />} />}
+        />
 
-      <Route
-        path="/LoanRepayments"
-        element={
-          <>
-            <LoanRepayments/>
-          </>
-        }
-      />
+        <Route
+          path="/LoanDisbursments"
+          element={<ProtectedRoute element={<LoanDisbursments />} />}
+        />
 
-
+        <Route
+          path="/LoanRepayments"
+          element={<ProtectedRoute element={<LoanRepayments />} />}
+        />
       </Routes>
     </>
-  )
+  );
 }
 
-export default App
+export default App;

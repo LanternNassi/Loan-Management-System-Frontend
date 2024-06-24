@@ -22,6 +22,9 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import { visuallyHidden } from '@mui/utils';
 
+import { toDDMMYYYY } from '../Utils/ConvertDateTime';
+import { FormatMoney } from '../Utils/Money';
+
 // function createData(id, name, calories, fat, carbs, protein) {
 //   return {
 //     id,
@@ -233,12 +236,14 @@ export default function NormalTable({heading , headers , table_rows , OnSelectio
   const [selected, setSelected] = React.useState([]);
   const [page, setPage] = React.useState(0);
   const [dense, setDense] = React.useState(false);
-  const [rowsPerPage, setRowsPerPage] = React.useState(5);
+  const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const rows = table_rows
   // const [rows, setrows] = React.useState(table_rows)
 
   
-  // React.useEffect(()=>{setrows(table_rows)},[])
+  React.useEffect(()=>{
+    OnSelection(selected);
+  },[selected])
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
     setOrder(isAsc ? 'desc' : 'asc');
@@ -271,12 +276,8 @@ export default function NormalTable({heading , headers , table_rows , OnSelectio
         selected.slice(selectedIndex + 1),
       );
     }
-    if (newSelected == ''){
-      setSelected(id , true);
-    }else{
-      setSelected(newSelected);
-    }
-    OnSelection(newSelected);
+    setSelected(newSelected);
+
   };
 
   const handleChangePage = (event, newPage) => {
@@ -333,7 +334,16 @@ export default function NormalTable({heading , headers , table_rows , OnSelectio
                 return(
                 <TableRow
                       hover
-                      onClick={(event) => handleClick(event, row.id)}
+                      onClick={(event) => {
+                        let primary = 'id'
+                        for (const header of headers){
+                          if (header['primary']){
+                            primary = header.id
+                          }
+                        }
+                        handleClick(event, row[primary])
+
+                      }}
                       role="checkbox"
                       aria-checked={isItemSelected}
                       tabIndex={-1}
@@ -352,6 +362,17 @@ export default function NormalTable({heading , headers , table_rows , OnSelectio
                     </TableCell>
                     
                     {headers.map((header,key) => {
+                      if (header.date){
+                        return (
+                          <TableCell key={key} align={header.alignment}>{toDDMMYYYY(row[header.id])}</TableCell>
+                        )
+                      }
+
+                      if (header.money){
+                        return (
+                          <TableCell key={key} align={header.alignment}>{FormatMoney(row[header.id])}</TableCell>
+                        )
+                      }
                       return (
                         <TableCell key={key} align={header.alignment}>{row[header.id]}</TableCell>
                       

@@ -17,6 +17,8 @@ import Button from '@mui/material/Button';
 
 import Typography from '@mui/material/Typography';
 
+import { useDispatch } from 'react-redux';
+
 import CircleNotificationsOutlinedIcon from '@mui/icons-material/CircleNotificationsOutlined';
 import AccountBalanceOutlinedIcon from '@mui/icons-material/AccountBalanceOutlined';
 import DashboardCustomizeOutlinedIcon from '@mui/icons-material/DashboardCustomizeOutlined';
@@ -25,6 +27,7 @@ import AppsIcon from '@mui/icons-material/Apps';
 import InboxIcon from '@mui/icons-material/MoveToInbox';
 import MenuIcon from '@mui/icons-material/Menu';
 import SearchIcon from '@mui/icons-material/Search';
+import { useNavigate } from "react-router-dom";
 
 
 
@@ -47,6 +50,10 @@ export default function DefaultLayout({active_tab , active_icon}) {
         setOpen(newOpen);
     };
 
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+
+
 
     const Generalsections = [
         {
@@ -64,22 +71,15 @@ export default function DefaultLayout({active_tab , active_icon}) {
 
     const Loanssections = [
       {
-      text : "Loans",
-      link : '/Loans',
-      icon : <ListAltOutlinedIcon/>
-      },
-
+        text : "Applications",
+        link : '/LoanApplications',
+        icon : <DocumentScannerOutlinedIcon/>
+  
+        },
       {
-      text : "Applications",
-      link : '/LoanApplications',
-      icon : <DocumentScannerOutlinedIcon/>
-
-      },
-      {
-      text : "Disbursments",
-      link : '/LoanDisbursments',
-      icon : <RequestPageOutlinedIcon/>
-
+        text : "Loans",
+        link : '/Loans',
+        icon : <ListAltOutlinedIcon/>
       },
       {
         text : "Repayments",
@@ -159,7 +159,17 @@ export default function DefaultLayout({active_tab , active_icon}) {
           <AccountBalanceOutlinedIcon/>
           <InboxIcon/>
           <CircleNotificationsOutlinedIcon/>
-          <Button variant="outlined" startIcon={<AccountCircleOutlinedIcon />}>
+          <Button onClick={()=>{
+
+              localStorage.clear()
+              dispatch({ type: "add_login_info", User: null });
+              dispatch({
+                type: "add_token",
+                token: null,
+              });
+
+              navigate("/login")
+          }} variant="outlined" startIcon={<AccountCircleOutlinedIcon />}>
             LOG OUT
           </Button>
           </NavOpenDiv>
@@ -168,7 +178,7 @@ export default function DefaultLayout({active_tab , active_icon}) {
     </div>
     <HeaderDiv>
           <Typography variant='h2'>
-              LOANS
+              LMS
           </Typography>
           <Divider style={{width : '80vw'}} textAlign="right">
           <div style = {{

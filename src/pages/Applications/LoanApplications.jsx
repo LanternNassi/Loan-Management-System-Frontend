@@ -493,7 +493,7 @@ export default function LoanApplications() {
 
               setedit(true);
             }}
-            variant="outlined"
+            variant="contained"
             startIcon={<AddOutlinedIcon />}
           >
             Add
@@ -507,7 +507,7 @@ export default function LoanApplications() {
               });
             }}
             disabled={!selected_applications.length}
-            variant="outlined"
+            variant="contained"
             startIcon={<SyncAltOutlinedIcon />}
           >
             Update
@@ -518,7 +518,7 @@ export default function LoanApplications() {
               DeleteApplication(selected_applications[0]);
             }}
             disabled={!selected_applications.length}
-            variant="outlined"
+            variant="contained"
             startIcon={<DeleteIcon />}
           >
             Delete
@@ -526,7 +526,7 @@ export default function LoanApplications() {
 
           <Button
             onClick={() => {}}
-            variant="outlined"
+            variant="contained"
             startIcon={<ExitToAppOutlinedIcon />}
           >
             EXCEL
@@ -573,7 +573,7 @@ export default function LoanApplications() {
             onClick={() => {
               setClientView(true);
             }}
-            variant="outlined"
+            variant="contained"
             startIcon={<PersonAddOutlinedIcon />}
           >
             Select client

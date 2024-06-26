@@ -9,13 +9,22 @@ import LoanApplications from "./pages/Applications/LoanApplications";
 import LoanDisbursments from "./pages/Disbursments/LoanDisbursments";
 import LoanRepayments from "./pages/Repayments/LoanRepayments";
 import Login from "./pages/Auth/Login";
+import Users from "./pages/Users/Users";
 
 import { useSelector, useDispatch } from "react-redux";
 
 const ProtectedRoute = ({ element, ...rest }) => {
-  // const { User } = useSelector((state) => state.AppReducer);
   const User = localStorage.getItem("User");
   return User ? element : <Navigate to="/login" />;
+};
+
+const AdminOnlyRoute = ({ element, ...rest }) => {
+  const User = localStorage.getItem("User");
+  if (!User) {
+    return <Navigate to="/login" />;
+  }
+  const access_level = JSON.parse(localStorage.getItem("User")).role;
+  return access_level == "admin" ? element : <Navigate to="/login" />;
 };
 
 function App() {
@@ -24,7 +33,9 @@ function App() {
   dispatch({ type: "add_login_info", User: localStorage.getItem("User") });
   dispatch({
     type: "add_token",
-    token: JSON.parse(localStorage.getItem("User")) ? JSON.parse(localStorage.getItem("User")).token : null,
+    token: JSON.parse(localStorage.getItem("User"))
+      ? JSON.parse(localStorage.getItem("User")).token
+      : null,
   });
 
   return (
@@ -40,6 +51,8 @@ function App() {
             </>
           }
         />
+
+        <Route path="/users" element={<AdminOnlyRoute element={<Users />} />} />
 
         <Route
           path="/clients"

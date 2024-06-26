@@ -351,7 +351,7 @@ export default function LoanRepayments() {
               }
               setedit(true);
             }}
-            variant="outlined"
+            variant="contained"
             startIcon={<AddOutlinedIcon />}
           >
             Add
@@ -364,7 +364,7 @@ export default function LoanRepayments() {
                 setedit(true);
               });
             }}
-            variant="outlined"
+            variant="contained"
             disabled={!selected_repayments.length}
             startIcon={<SyncAltOutlinedIcon />}
           >
@@ -373,7 +373,7 @@ export default function LoanRepayments() {
 
           <Button
             onClick={() => {}}
-            variant="outlined"
+            variant="contained"
             disabled={!selected_repayments.length}
             startIcon={<DeleteIcon />}
           >
@@ -382,7 +382,7 @@ export default function LoanRepayments() {
 
           <Button
             onClick={() => {}}
-            variant="outlined"
+            variant="contained"
             startIcon={<ExitToAppOutlinedIcon />}
           >
             EXCEL
@@ -429,7 +429,7 @@ export default function LoanRepayments() {
             onClick={() => {
               setloanView(true);
             }}
-            variant="outlined"
+            variant="contained"
             startIcon={<PersonAddOutlinedIcon />}
           >
             Select loan

@@ -385,7 +385,7 @@ export default function Loans() {
                 setDisbursmentsView(true);
               }}
               disabled={!selected_loans.length}
-              variant="outlined"
+              variant="contained"
               startIcon={<PersonAddOutlinedIcon />}
             >
               Disbursments
@@ -396,7 +396,7 @@ export default function Loans() {
                 setedit(true);
               }}
               disabled={!selected_loans.length}
-              variant="outlined"
+              variant="contained"
               startIcon={<PersonAddOutlinedIcon />}
             >
               Disburse
@@ -406,7 +406,7 @@ export default function Loans() {
               onClick={() => {
                 setClientView(true);
               }}
-              variant="outlined"
+              variant="contained"
               startIcon={<PersonAddOutlinedIcon />}
             >
               Select client

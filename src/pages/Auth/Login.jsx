@@ -87,7 +87,18 @@ const Login = () => {
         padding: 3,
       }}
     >
-    <FeedBack outlined = {(feedback)? (feedback.outlined) : (false)} open ={(feedback != null)?(true):(false)} message={(feedback != null)?(feedback.message):('')} status={(feedback != null)?(feedback.status):('success')} />
+    
+    <Box sx ={{
+      height : '20vh',
+      display : 'flex',
+      alignItems : 'center',
+      justifyContent : 'center'
+    }}>
+
+      <Typography variant="h5">Loan Management System</Typography>
+    </Box>
+
+      <FeedBack outlined = {(feedback)? (feedback.outlined) : (false)} open ={(feedback != null)?(true):(false)} message={(feedback != null)?(feedback.message):('')} status={(feedback != null)?(feedback.status):('success')} />
 
       <Box
         sx={{
@@ -98,6 +109,7 @@ const Login = () => {
           backgroundColor: "#fff",
         }}
       >
+
         <Typography variant="h5" component="h1" gutterBottom>
           Login
         </Typography>

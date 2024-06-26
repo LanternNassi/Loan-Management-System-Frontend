@@ -336,7 +336,7 @@ export default function Clients() {
                             clearFields()
                         }
                         setedit(true)
-                    }} variant="outlined" startIcon={<AddOutlinedIcon />}>
+                    }} variant="contained" startIcon={<AddOutlinedIcon />}>
                         Add
                     </Button>
 
@@ -352,7 +352,7 @@ export default function Clients() {
                             setedit(true)
                         })
 
-                    }} disabled = {!selected_items.length} variant="outlined" startIcon={<SyncAltOutlinedIcon />}>
+                    }} disabled = {!selected_items.length} variant="contained" startIcon={<SyncAltOutlinedIcon />}>
                         Update
                     </Button>
 
@@ -367,13 +367,13 @@ export default function Clients() {
                             DeleteClient(data.id)
                         })
                         
-                    }} disabled = {!selected_items.length} variant="outlined" startIcon={<DeleteIcon />}>
+                    }} disabled = {!selected_items.length} variant="contained" startIcon={<DeleteIcon />}>
                         Delete
                     </Button>
 
                     <Button onClick={()=>{
                         console.log(selected_items)
-                    }} variant="outlined" startIcon={<ExitToAppOutlinedIcon />}>
+                    }} variant="contained" startIcon={<ExitToAppOutlinedIcon />}>
                         EXCEL
                     </Button>
                 </Actions>

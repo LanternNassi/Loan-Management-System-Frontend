@@ -1,8 +1,10 @@
 
 import axios from 'axios';
-import { BACKEND_URL } from '../config';
 
 
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+
+// console.log(BACKEND_URL)
 export const Custom_Axios = (token) => axios.create({
     // baseURL: 'https://localhost:7223/api',
     baseURL: BACKEND_URL,

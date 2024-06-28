@@ -73,8 +73,7 @@ const Login = () => {
 
   const token = useSelector((state) => state.AppReducer.User);
 
-  console.log(token);
-
+    
   return (
     <Box
       sx={{

@@ -54,6 +54,8 @@ export default function Loans() {
 
   const [selectedclient, setselectedclient] = React.useState(null);
   const [active_loan] = React.useState(null);
+  const [selectedclientName , setselectedclientName] = React.useState(null)
+
 
   const [selected_loans, set_selected_loans] = React.useState([]);
   const [headers, setheaders] = React.useState([]);
@@ -87,6 +89,14 @@ export default function Loans() {
 
   const token = useSelector(state => state.AppReducer.token);
   var CustomAxios = Custom_Axios(token)
+
+  const FetchClientById = (id , OnComplete) => {
+    CustomAxios.get('/Clients/' + id).then((response) => {
+        if (response.status === 200) {
+          OnComplete(response.data)
+        }
+    });
+  }
 
   const FetchLoans = (params) => {
     setloans(null);
@@ -164,7 +174,7 @@ export default function Loans() {
 
     const disbursment = {
       disbursmentDate: new Date().toISOString,
-      disbursedBy: "e775285a-5f39-460c-ffa1-08dc8fa67299",
+      disbursedBy: JSON.parse(localStorage.getItem('User')).id,
       loanId: selected_loans[0],
     };
     for (const [key, value] of formData.entries()) {
@@ -343,7 +353,7 @@ export default function Loans() {
             variant="outlined"
             severity={selectedclient ? "success" : "warning"}
           >
-            Active Client : {selectedclient}
+            Active Client : {selectedclientName}
           </Alert>
 
           <div
@@ -449,6 +459,10 @@ export default function Loans() {
 
               setselectedclient(selectedclients[0]);
               setClientView(false);
+
+              FetchClientById(selectedclients[0] , (data)=>{
+                setselectedclientName(data.firstName + " " + data.otherNames)
+              })
 
               setTimeout(() => {
                 setfeedback(null);

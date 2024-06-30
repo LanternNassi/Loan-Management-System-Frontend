@@ -72,6 +72,7 @@ export default function LoanApplications() {
   const [clientView, setClientView] = React.useState(false);
   const [active_application, setactive_application] = React.useState(null);
   const [selectedclient, setselectedclient] = React.useState(null);
+  const [selectedclientName , setselectedclientName] = React.useState(null)
 
   const [selected_status , set_selected_status] = React.useState(null)
   const [selected_start_date , set_selected_start_date] = React.useState(null)
@@ -93,6 +94,7 @@ export default function LoanApplications() {
         disablePadding: false,
         label: "client",
         alignment: "left",
+        clientName: true,
       },
       {
         id: "status",
@@ -115,6 +117,7 @@ export default function LoanApplications() {
         disablePadding: false,
         label: "Approved By",
         alignment: "left",
+        user: true,
       },
       {
         id: "approved_Date",
@@ -156,6 +159,14 @@ export default function LoanApplications() {
       }
     });
   };
+
+  const FetchClientById = (id , OnComplete) => {
+    CustomAxios.get('/Clients/' + id).then((response) => {
+        if (response.status === 200) {
+          OnComplete(response.data)
+        }
+    });
+  }
 
   const CreateApplication = (event) => {
     event.preventDefault();
@@ -200,8 +211,7 @@ export default function LoanApplications() {
     const application = {
       id: active_application.id,
       'clientId' : active_application.clientId,
-      "approved_by": "e775285a-5f39-460c-ffa1-08dc8fa67299",
-
+      "approved_by": JSON.parse(localStorage.getItem('User')).id,
     };
     for (const [key, value] of formData.entries()) {
       application[key] = value;
@@ -566,7 +576,7 @@ export default function LoanApplications() {
             variant="outlined"
             severity={selectedclient ? "success" : "warning"}
           >
-            Active Client : {selectedclient}
+            Active Client : {selectedclientName}
           </Alert>
 
           <Button
@@ -617,6 +627,9 @@ export default function LoanApplications() {
             setselectedclient(selectedclients[0]);
             setClientView(false);
             FetchApplications({ ClientId: selectedclients[0] });
+            FetchClientById(selectedclients[0] , (data)=>{
+              setselectedclientName(data.firstName + " " + data.otherNames)
+            })
             setTimeout(() => {
               setfeedback(null);
             }, 4000);

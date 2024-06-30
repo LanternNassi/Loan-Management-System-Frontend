@@ -21,7 +21,7 @@ export default function LoansModal({open , onToggleDrawer , onSelection}) {
           id: "application",
           numeric: false,
           disablePadding: false,
-          label: "client",
+          label: "Application",
           alignment: "left",
         },
         {

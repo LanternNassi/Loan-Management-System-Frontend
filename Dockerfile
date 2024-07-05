@@ -14,7 +14,7 @@ RUN npm install
 COPY . .
 
 ARG VITE_BACKEND_URL
-RUN echo "VITE_BACKEND_URL=${BACKEND_URL}" >> .env
+RUN echo "VITE_BACKEND_URL=${VITE_BACKEND_URL}" >> .env
 
 RUN npm run build
 

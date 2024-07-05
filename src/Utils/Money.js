@@ -1,4 +1,8 @@
 export function FormatMoney(amount) {
+
+    if (amount == null){
+      return null
+    }
     // Convert the amount to a string
     let amountStr = amount.toString();
     

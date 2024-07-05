@@ -16,7 +16,6 @@ COPY . .
 ARG VITE_BACKEND_URL
 RUN echo "VITE_BACKEND_URL=${BACKEND_URL}" >> .env
 
-# Build the Vite app
 RUN npm run build
 
 # Stage 2: Serve the app using Nginx

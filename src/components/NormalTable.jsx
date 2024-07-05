@@ -405,10 +405,10 @@ export default function NormalTable({
                         );
                       }
 
-                      if (header.user){
+                      if (header.user) {
                         return (
                           <TableCell key={key} align={header.alignment}>
-                            {row.user ? (row.user.username) : (null)}
+                            {row.user ? row.user.username : null}
                           </TableCell>
                         );
                       }

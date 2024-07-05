@@ -64,8 +64,10 @@ export default function LoanRepayments() {
   const [feedback, setfeedback] = React.useState(null);
   const [selectedloan, set_selectedloan] = React.useState(null);
   const [edit, setedit] = React.useState(false);
-  const [submitting , setsubmitting] = React.useState(false);
+  const [submitting, setsubmitting] = React.useState(false);
   const [loanView, setloanView] = React.useState(false);
+
+  const [making_payment, set_making_payment] = React.useState(false);
 
   const [active_schedule, set_active_schedule] = React.useState(null);
 
@@ -83,8 +85,8 @@ export default function LoanRepayments() {
 
   const [selected_repayments, set_selected_repayments] = React.useState([]);
 
-  const token = useSelector(state => state.AppReducer.token);
-  var CustomAxios = Custom_Axios(token)
+  const token = useSelector((state) => state.AppReducer.token);
+  var CustomAxios = Custom_Axios(token);
 
   const OnSelection = React.useCallback((selected) => {
     set_selected_repayments(selected);
@@ -107,11 +109,12 @@ export default function LoanRepayments() {
     event.preventDefault();
     const formData = new FormData(event.target);
 
-    setsubmitting(true)
+    setsubmitting(true);
 
     const schedule = {
       loanId: selectedloan,
       status: "Pending",
+      paidAmount: 0,
     };
 
     for (const [key, value] of formData.entries()) {
@@ -130,7 +133,41 @@ export default function LoanRepayments() {
         });
         setsubmitting(false);
         setedit(false);
-        FetchRepayments({ loanId: selectedloan});
+        FetchRepayments({ loanId: selectedloan });
+
+        setTimeout(() => {
+          setfeedback(null);
+        }, 4000);
+
+        set_active_schedule(null);
+      }
+    });
+  };
+
+  const AddPayment = (event) => {
+    event.preventDefault();
+    const formData = new FormData(event.target);
+
+    setsubmitting(true);
+
+    const payment = {
+      'schedule' : active_schedule.id
+    };
+
+    for (const [key, value] of formData.entries()) {
+      payment[key] = value;
+    }
+
+
+    CustomAxios.post("/Repayments", payment).then((response) => {
+      if (response.status == 200) {
+        setfeedback({
+          status: "success",
+          message: "Payment added successfully",
+        });
+        setsubmitting(false);
+        setedit(false);
+        FetchRepayments({ loanId: active_schedule.loanId});
 
         setTimeout(() => {
           setfeedback(null);
@@ -175,6 +212,14 @@ export default function LoanRepayments() {
         money: true,
       },
       {
+        id: "paidAmount",
+        numeric: false,
+        disablePadding: false,
+        label: "Paid Amount",
+        alignment: "left",
+        money: true,
+      },
+      {
         id: "status",
         numeric: false,
         disablePadding: false,
@@ -192,70 +237,97 @@ export default function LoanRepayments() {
 
   const Fields = () => (
     <>
-      <TextField
-        disabled
-        sx={{ width: "25vw" }}
-        defaultValue={
-          selectedloan ? selectedloan : selected_repayments[0]["loanId"]
-        }
-        name="loan"
-        label="Loan ID"
-        variant="outlined"
-      />
+      {!making_payment ? (
+        <>
+          <TextField
+            disabled
+            sx={{ width: "25vw" }}
+            defaultValue={selectedloan ? selectedloan : active_schedule.loanId}
+            name="loan"
+            label="Loan ID"
+            variant="outlined"
+          />
 
-      <TextField
-        sx={{ width: "25vw" }}
-        defaultValue={active_schedule ? active_schedule.repaymentAmount : ""}
-        name="repaymentAmount"
-        label="Repayment Amount"
-        variant="outlined"
-      />
-      <TextField
-        disabled={!active_schedule}
-        select
-        sx={{ width: "25vw" }}
-        defaultValue={active_schedule ? active_schedule.status : "Pending"}
-        name="status"
-        label="Status"
-        variant="outlined"
-      >
-        <MenuItem key={"Pending"} value={"Pending"}>
-          Pending
-        </MenuItem>
+          <TextField
+            sx={{ width: "25vw" }}
+            defaultValue={
+              active_schedule ? active_schedule.repaymentAmount : ""
+            }
+            name="repaymentAmount"
+            label="Repayment Amount"
+            variant="outlined"
+          />
+          <TextField
+            disabled={!active_schedule}
+            select
+            sx={{ width: "25vw" }}
+            defaultValue={active_schedule ? active_schedule.status : "Pending"}
+            name="status"
+            label="Status"
+            variant="outlined"
+          >
+            <MenuItem key={"Pending"} value={"Pending"}>
+              Pending
+            </MenuItem>
 
-        <MenuItem key={"Missed"} value={"Missed"}>
-          Missed
-        </MenuItem>
+            <MenuItem key={"Missed"} value={"Missed"}>
+              Missed
+            </MenuItem>
 
-        <MenuItem key={"Paid"} value={"Paid"}>
-          Paid
-        </MenuItem>
-      </TextField>
-
-      <LocalizationProvider dateAdapter={AdapterDayjs}>
-        <DatePicker
-          name="repaymentDate"
-          label="Repayment Date"
-          sx={{ width: "25vw" }}
-          // defaultValue={active_schedule ? dayjs(active_schedule.repaymentDate).date() : null}
-          // disabled={
-          //   active_application
-          //     ? active_application.status == "Approved"
-          //       ? false
-          //       : true
-          //     : true
-          // }
-          renderInput={(params) => <TextField {...params} />}
-          // value={""}
-          // onChange={(newValue) =>
-          //   handleExperienceDataChange(
-          //     index,
-          //     "startDate",
-          //     dayjs(newValue).format("MM-DD-YYYY")
-          //   )
-          // }
-        />
-      </LocalizationProvider>
+            <MenuItem key={"Paid"} value={"Paid"}>
+              Paid
+            </MenuItem>
+          </TextField>
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <DatePicker
+              name="repaymentDate"
+              label="Repayment Date"
+              sx={{ width: "25vw" }}
+              // defaultValue={active_schedule ? dayjs(active_schedule.repaymentDate).date() : null}
+              // disabled={
+              //   active_application
+              //     ? active_application.status == "Approved"
+              //       ? false
+              //       : true
+              //     : true
+              // }
+              renderInput={(params) => <TextField {...params} />}
+              // value={""}
+              // onChange={(newValue) =>
+              //   handleExperienceDataChange(
+              //     index,
+              //     "startDate",
+              //     dayjs(newValue).format("MM-DD-YYYY")
+              //   )
+              // }
+            />
+          </LocalizationProvider>
+        </>
+      ) : (
+        <>
+          <TextField
+            disabled
+            sx={{ width: "25vw" }}
+            defaultValue={active_schedule ? active_schedule.id : ""}
+            name="schedule"
+            label="Schedule ID"
+            variant="outlined"
+          />
+          <TextField
+            sx={{ width: "25vw" }}
+            name="amount"
+            label="Paid Amount"
+            variant="outlined"
+          />
+          <TextField
+            sx={{ width: "25vw" }}
+            name="moreInfo"
+            label="More Information"
+            multiline
+            rows={4}
+          />
+        </>
+      )}
 
       <LoadingButton
         type="submit"
@@ -337,6 +409,7 @@ export default function LoanRepayments() {
           <Button
             onClick={() => {
               if (selectedloan == null) {
+                set_making_payment(false)
                 set_active_schedule(null);
                 setfeedback({
                   status: "error",
@@ -360,6 +433,7 @@ export default function LoanRepayments() {
           <Button
             onClick={async () => {
               FetchScheduleById(selected_repayments[0], (data) => {
+                set_making_payment(false)
                 set_active_schedule(data);
                 setedit(true);
               });
@@ -381,11 +455,18 @@ export default function LoanRepayments() {
           </Button>
 
           <Button
-            onClick={() => {}}
+            disabled={!selected_repayments.length}
+            onClick={() => {
+              FetchScheduleById(selected_repayments[0], (data) => {
+                set_active_schedule(data);
+                set_making_payment(true);
+                setedit(true);
+              });
+            }}
             variant="contained"
             startIcon={<ExitToAppOutlinedIcon />}
           >
-            EXCEL
+            Make Payment
           </Button>
         </Actions>
       </div>
@@ -455,7 +536,7 @@ export default function LoanRepayments() {
       <Edit
         open={edit}
         Heading={"ADD PAYMENT"}
-        onSubmit={AddSchedule}
+        onSubmit={making_payment ? AddPayment : AddSchedule}
         toggleDrawer={toggleEditDrawer}
       >
         <Fields />

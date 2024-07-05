@@ -13,6 +13,9 @@ RUN npm install
 # Copy the rest of the application code
 COPY . .
 
+ARG VITE_BACKEND_URL
+RUN echo "VITE_BACKEND_URL=${BACKEND_URL}" >> .env
+
 # Build the Vite app
 RUN npm run build
 

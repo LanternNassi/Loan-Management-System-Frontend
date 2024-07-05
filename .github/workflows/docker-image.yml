@@ -26,4 +26,4 @@ jobs:
           tags: nessimntambi/loan_management_system_frontend:latest
           build-args: |
             NODE_ENV=production
-            VITE_BACKEND_URL="${{secrets.BACKEND_URL}}"
+            VITE_BACKEND_URL=${{secrets.BACKEND_URL}}

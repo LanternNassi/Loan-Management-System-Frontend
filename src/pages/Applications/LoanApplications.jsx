@@ -21,7 +21,7 @@ import MenuItem from "@mui/material/MenuItem";
 
 import Divider from "@mui/material/Divider";
 import NormalTable from "../../components/NormalTable";
-import styled from "@emotion/styled";
+import { styled } from "@mui/system";
 
 import { Custom_Axios } from "../../AxiosInstance";
 import ApplicationClients from "./ApplicationClients";
@@ -32,11 +32,17 @@ import LoadingButton from "@mui/lab/LoadingButton";
 import SaveIcon from "@mui/icons-material/Save";
 import PersonAddOutlinedIcon from "@mui/icons-material/PersonAddOutlined";
 
+import List from "@mui/material/List";
+import ListItem from "@mui/material/ListItem";
+import ListItemText from "@mui/material/ListItemText";
+
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-import { toISODate , toDDMMYYYY } from "../../Utils/ConvertDateTime";
+import { toISODate, toDDMMYYYY } from "../../Utils/ConvertDateTime";
 import { useSelector } from "react-redux";
+import { FormatMoney } from "../../Utils/Money";
+import { PieChart } from "@mui/x-charts/PieChart";
 
 // import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import dayjs from "dayjs";
@@ -47,9 +53,8 @@ const Statistics = styled("div")(() => ({
   flexDirection: "row",
   justifyContent: "space-around",
   alignItems: "center",
-  top: 20,
-  width: "85vw",
-  height: "30vh",
+  width: "100vw",
+  height: "50vh",
 }));
 
 const Actions = styled("div")(() => ({
@@ -72,15 +77,15 @@ export default function LoanApplications() {
   const [clientView, setClientView] = React.useState(false);
   const [active_application, setactive_application] = React.useState(null);
   const [selectedclient, setselectedclient] = React.useState(null);
-  const [selectedclientName , setselectedclientName] = React.useState(null)
+  const [selectedclientName, setselectedclientName] = React.useState(null);
+  const [meta_data, set_meta_data] = React.useState(null);
 
-  const [selected_status , set_selected_status] = React.useState(null)
-  const [selected_start_date , set_selected_start_date] = React.useState(null)
-  const [selected_end_date , set_selected_end_date] = React.useState(null)
+  const [selected_status, set_selected_status] = React.useState(null);
+  const [selected_start_date, set_selected_start_date] = React.useState(null);
+  const [selected_end_date, set_selected_end_date] = React.useState(null);
 
-  const token = useSelector(state => state.AppReducer.token);
-  var CustomAxios = Custom_Axios(token)
-
+  const token = useSelector((state) => state.AppReducer.token);
+  var CustomAxios = Custom_Axios(token);
 
   const OnSelection = React.useCallback((selected) => {
     set_selected_applications(selected);
@@ -109,7 +114,7 @@ export default function LoanApplications() {
         disablePadding: false,
         label: "Loan Amount",
         alignment: "left",
-        money : true
+        money: true,
       },
       {
         id: "approved_by",
@@ -125,14 +130,14 @@ export default function LoanApplications() {
         disablePadding: false,
         label: "Date Approved",
         alignment: "left",
-        date : true,
+        date: true,
       },
       {
         id: "addedAt",
         numeric: false,
         disablePadding: true,
         label: "Date added",
-        date : true
+        date: true,
       },
     ];
     setheaders(headers);
@@ -146,7 +151,9 @@ export default function LoanApplications() {
     setapplications(null);
     CustomAxios.get("/LoanApplications", { params }).then((response) => {
       if (response.status == 200) {
-        setapplications(response.data);
+        setapplications(response.data.data);
+        set_meta_data(response.data.meta_data);
+        console.log(response.data.meta_data)
         createApplicationHeaders();
       }
     });
@@ -160,13 +167,13 @@ export default function LoanApplications() {
     });
   };
 
-  const FetchClientById = (id , OnComplete) => {
-    CustomAxios.get('/Clients/' + id).then((response) => {
-        if (response.status === 200) {
-          OnComplete(response.data)
-        }
+  const FetchClientById = (id, OnComplete) => {
+    CustomAxios.get("/Clients/" + id).then((response) => {
+      if (response.status === 200) {
+        OnComplete(response.data);
+      }
     });
-  }
+  };
 
   const CreateApplication = (event) => {
     event.preventDefault();
@@ -202,26 +209,24 @@ export default function LoanApplications() {
     });
   };
 
-
-
   const UpdateApplication = (event) => {
     event.preventDefault();
     const formData = new FormData(event.target);
 
     const application = {
       id: active_application.id,
-      'clientId' : active_application.clientId,
-      "approved_by": JSON.parse(localStorage.getItem('User')).id,
+      clientId: active_application.clientId,
+      approved_by: JSON.parse(localStorage.getItem("User")).id,
     };
     for (const [key, value] of formData.entries()) {
       application[key] = value;
 
-      if (key == 'endDate'){
-        application[key] = dayjs(value).toISOString()
+      if (key == "endDate") {
+        application[key] = dayjs(value).toISOString();
       }
 
-      if (key == 'startDate'){
-        application[key] = dayjs(value).toISOString()
+      if (key == "startDate") {
+        application[key] = dayjs(value).toISOString();
       }
     }
     // console.log(application)
@@ -248,6 +253,7 @@ export default function LoanApplications() {
       }
     });
   };
+
 
   const DeleteApplication = (id) => {
     CustomAxios.delete("/LoanApplications/" + id).then((response) => {
@@ -320,7 +326,10 @@ export default function LoanApplications() {
         select
         onChange={(event) => {
           // set_selected_status(event.target.value)
-          setactive_application({...active_application , 'status' : event.target.value})
+          setactive_application({
+            ...active_application,
+            status: event.target.value,
+          });
         }}
         disabled={active_application ? false : true}
         label="Application Status"
@@ -342,24 +351,28 @@ export default function LoanApplications() {
         </MenuItem>
       </TextField>
 
-      
-
       <LocalizationProvider dateAdapter={AdapterDayjs}>
         <Grid
           container
           spacing={2}
           display={"flex"}
-          flexDirection={'column'}
+          flexDirection={"column"}
           justifyContent={"space-between"}
-          alignItems={'center'}
+          alignItems={"center"}
           paddingTop={"1rem"}
         >
           <Grid item>
             <DatePicker
-              name = "startDate"
+              name="startDate"
               label="Start Date"
-              sx = {{width : '25vw'}}
-              disabled ={active_application ? (active_application.status == 'Approved' ? (false) : (true)) : true}
+              sx={{ width: "25vw" }}
+              disabled={
+                active_application
+                  ? active_application.status == "Approved"
+                    ? false
+                    : true
+                  : true
+              }
               renderInput={(params) => <TextField {...params} />}
               // value={""}
               // onChange={(newValue) =>
@@ -373,10 +386,16 @@ export default function LoanApplications() {
           </Grid>
           <Grid item>
             <DatePicker
-              name = "endDate"
+              name="endDate"
               label="End Date"
-              sx = {{width : '25vw'}}
-              disabled ={active_application ? (active_application.status == 'Approved' ? (false) : (true)) : true}
+              sx={{ width: "25vw" }}
+              disabled={
+                active_application
+                  ? active_application.status == "Approved"
+                    ? false
+                    : true
+                  : true
+              }
               renderInput={(params) => <TextField {...params} />}
               // value={exp.endDate ? dayjs(exp.endDate) : null}
               // onChange={(newValue) =>
@@ -393,7 +412,13 @@ export default function LoanApplications() {
 
       <TextField
         sx={{ width: "25vw" }}
-        disabled ={active_application ? (active_application.status == 'Approved' ? (false) : (true)) : true}
+        disabled={
+          active_application
+            ? active_application.status == "Approved"
+              ? false
+              : true
+            : true
+        }
         // defaultValue={active_application ? active_application.loanAmount : ""}
         name="InterestRate"
         label="Interest Rate"
@@ -414,6 +439,8 @@ export default function LoanApplications() {
     </>
   );
 
+
+
   React.useEffect(() => {
     FetchApplications();
   }, []);
@@ -431,42 +458,125 @@ export default function LoanApplications() {
         status={feedback != null ? feedback.status : "success"}
       />
 
+      <div style={{ height: "7vh" }} />
+
       <Statistics>
-        <Card sx={{ minWidth: 275 }}>
-          <CardHeader title={"Approved"} />
+
+        <Card sx={{ minWidth: 275, height: "50vh" }}>
+          <CardHeader title={"Status"} />
           <CardContent>
-            <Typography
-              sx={{ fontSize: 14 }}
-              color="text.secondary"
-              gutterBottom
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                width: "30vw",
+                justifyContent: "space-around",
+                alignItems: "center",
+              }}
             >
-              24
-            </Typography>
+              <PieChart
+                series={[
+                  {
+                    paddingAngle: 5,
+                    innerRadius: 60,
+                    outerRadius: 80,
+                    data: [
+                      { label: "Approved", value: !meta_data ? 0 : meta_data["approved"] },
+                      { label: "Pending", value: !meta_data ? 0 : meta_data["pending"] },
+                      { label: "Rejected", value: !meta_data ? 0 : meta_data["rejected"] },
+                    ],
+                  },
+                ]}
+                margin={{ right: 5 }}
+                width={200}
+                height={200}
+                legend={{ hidden: true }}
+              />
+
+              <List>
+                <ListItem>
+                  <ListItemText
+                    primary={"Approved"}
+                    secondary={!meta_data ? 0 : meta_data["approved"]}
+                  />
+                </ListItem>
+                <ListItem>
+                  <ListItemText
+                    primary={"Pending"}
+                    secondary={!meta_data ? 0 : meta_data["pending"]}
+                  />
+                </ListItem>
+                <ListItem>
+                  <ListItemText
+                    primary={"Rejected"}
+                    secondary={!meta_data ? 0 : meta_data["rejected"]}
+                  />
+                </ListItem>
+              </List>
+            </div>
           </CardContent>
         </Card>
 
-        <Card sx={{ minWidth: 275 }}>
-          <CardHeader title={"Pending"} />
+        <Card sx={{ minWidth: 275, height: "50vh" }}>
+          <CardHeader title={"Amount"} />
           <CardContent>
-            <Typography
-              sx={{ fontSize: 14 }}
-              color="text.secondary"
-              gutterBottom
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                width: "30vw",
+                justifyContent: "space-around",
+                alignItems: "center",
+              }}
             >
-              24
-            </Typography>
+              <PieChart
+                series={[
+                  {
+                    paddingAngle: 5,
+                    innerRadius: 60,
+                    outerRadius: 80,
+                    data: [
+                      { label: "Approved", value: !meta_data ? 0 : meta_data["query_approved_amount"] },
+                      { label: "Pending", value: !meta_data ? 0 : meta_data["query_pending_amount"] },
+                      { label: "Rejected", value: !meta_data ? 0 :  meta_data["query_rejected_amount"] },
+                    ],
+                  },
+                ]}
+                margin={{ right: 5 }}
+                width={200}
+                height={200}
+                legend={{ hidden: true }}
+              />
+
+              <List>
+                <ListItem>
+                  <ListItemText
+                    primary={"Approved"}
+                    secondary={ !meta_data ? 0 : FormatMoney(meta_data["query_approved_amount"])}
+                  />
+                </ListItem>
+                <ListItem>
+                  <ListItemText
+                    primary={"Pending"}
+                    secondary={ !meta_data ? 0 : FormatMoney(meta_data["query_pending_amount"])}
+                  />
+                </ListItem>
+                <ListItem>
+                  <ListItemText
+                    primary={"Rejected"}
+                    secondary={ !meta_data ? 0 : FormatMoney(meta_data["query_rejected_amount"])}
+                  />
+                </ListItem>
+              </List>
+            </div>
           </CardContent>
         </Card>
 
-        <Card sx={{ minWidth: 275 }}>
-          <CardHeader title={"Rejected"} />
-          <CardContent>
-            <Typography sx={{ fontSize: 14 }} color="text.primary" gutterBottom>
-              14
-            </Typography>
-          </CardContent>
-        </Card>
+        
+
       </Statistics>
+
+      <div style={{ height: "7vh" }} />
 
       <div
         style={{
@@ -627,9 +737,9 @@ export default function LoanApplications() {
             setselectedclient(selectedclients[0]);
             setClientView(false);
             FetchApplications({ ClientId: selectedclients[0] });
-            FetchClientById(selectedclients[0] , (data)=>{
-              setselectedclientName(data.firstName + " " + data.otherNames)
-            })
+            FetchClientById(selectedclients[0], (data) => {
+              setselectedclientName(data.firstName + " " + data.otherNames);
+            });
             setTimeout(() => {
               setfeedback(null);
             }, 4000);

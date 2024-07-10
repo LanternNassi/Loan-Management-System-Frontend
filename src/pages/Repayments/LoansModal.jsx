@@ -18,10 +18,18 @@ export default function LoansModal({open , onToggleDrawer , onSelection}) {
     const createLoansHeaders = () => {
       const headers = [
         {
-          id: "application",
+          id: "clientId",
           numeric: false,
           disablePadding: false,
-          label: "Application",
+          label: "client",
+          alignment: "left",
+          LoanClientName: true,
+        },
+        {
+          id: "id",
+          numeric: false,
+          disablePadding: false,
+          label: "Loan number",
           alignment: "left",
         },
         {

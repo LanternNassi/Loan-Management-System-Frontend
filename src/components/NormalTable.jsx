@@ -405,10 +405,26 @@ export default function NormalTable({
                         );
                       }
 
+                      if (header.LoanClientName) {
+                        return (
+                          <TableCell key={key} align={header.alignment}>
+                            {row.loanApplication.client.firstName + " " + row.loanApplication.client.otherNames}
+                          </TableCell>
+                        );
+                      }
+
                       if (header.user) {
                         return (
                           <TableCell key={key} align={header.alignment}>
                             {row.user ? row.user.username : null}
+                          </TableCell>
+                        );
+                      }
+
+                      if (header.transaction_name) {
+                        return (
+                          <TableCell key={key} align={header.alignment}>
+                            {row.account.client.firstName + " " + row.account.client.otherNames}
                           </TableCell>
                         );
                       }

@@ -20,7 +20,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import Divider from '@mui/material/Divider';
 import NormalTable from "../../components/NormalTable";
 import CustomSearch from "../../components/CustomSearch";
-import styled from "@emotion/styled";
+import { styled } from '@mui/system';
 
 import { Custom_Axios} from "../../AxiosInstance";
 // import { add_token } from "../../redux/state";
@@ -98,17 +98,17 @@ export default function Clients() {
     const createClientHeaders = React.useCallback(() => {
         const headers = [
             {
-                id: 'id',
-                numeric: false,
-                disablePadding: false,
-                label: 'Client ID',
-                alignment: 'left',
-            },
-            {
                 id: 'firstName',
                 numeric: false,
                 disablePadding: false,
-                label: 'Names',
+                label: 'First Name',
+                alignment: 'left',
+            },
+            {
+                id: 'otherNames',
+                numeric: false,
+                disablePadding: false,
+                label: 'Other Names',
                 alignment: 'left',
             },
             {

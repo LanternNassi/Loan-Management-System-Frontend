@@ -12,6 +12,7 @@ import Login from "./pages/Auth/Login";
 import Users from "./pages/Users/Users";
 import DepositSavings from "./pages/DepositSavings/DepositSavings";
 import WithDrawSavings from "./pages/WithDrawSavings/WithdDrawSavings";
+import Accounts from "./pages/Accounts/Accounts";
 
 import { isTokenExpired } from "./AxiosInstance";
 
@@ -82,12 +83,17 @@ function App() {
 
         <Route
           path="/Deposit"
-          element={<ProtectedRoute element={<DepositSavings/>} />}
+          element={<ProtectedRoute element={<DepositSavings />} />}
         />
 
         <Route
           path="/Withdraw"
-          element={<ProtectedRoute element={<WithDrawSavings/>} />}
+          element={<ProtectedRoute element={<WithDrawSavings />} />}
+        />
+
+        <Route
+          path="/Accounts"
+          element={<ProtectedRoute element={<Accounts />} />}
         />
 
       </Routes>

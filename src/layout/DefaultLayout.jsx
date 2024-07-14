@@ -74,7 +74,7 @@ export default function DefaultLayout({ active_tab, active_icon }) {
     },
     {
       text: "Accounts",
-      link: "/Deposit",
+      link: "/Accounts",
       icon: <AddCardOutlinedIcon />,
     },
   ];

@@ -23,6 +23,10 @@ export const PrimaryTheme = createTheme({
 
     }
   },
+  typography: {
+    fontFamily: 'Figtree, sans-serif',
+    fontSize: 15,
+  },
 
 });
 

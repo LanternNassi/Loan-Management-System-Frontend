@@ -7,7 +7,7 @@ import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
 import CardHeader from "@mui/material/CardHeader";
-import styled from "@emotion/styled";
+import { styled } from '@mui/system';
 
 import Divider from "@mui/material/Divider";
 import Alert from "@mui/material/Alert";
@@ -141,6 +141,18 @@ export default function LoanRepayments() {
 
         set_active_schedule(null);
       }
+    }).catch((error)=>{
+      if (error.response.status === 400){
+        setfeedback({
+          status: "error",
+          message: error.response.data,
+        });
+        setsubmitting(false)
+        setedit(false)
+        setTimeout(() => {
+          setfeedback(null);
+        }, 5500);
+      }
     });
   };
 
@@ -174,6 +186,18 @@ export default function LoanRepayments() {
         }, 4000);
 
         set_active_schedule(null);
+      }
+    }).catch((error)=>{
+      if (error.response.status === 400){
+        setfeedback({
+          status: "error",
+          message: error.response.data,
+        });
+        setsubmitting(false)
+        setedit(false)
+        setTimeout(() => {
+          setfeedback(null);
+        }, 5500);
       }
     });
   };
@@ -346,7 +370,7 @@ export default function LoanRepayments() {
   return (
     <div className="root">
       <DefaultLayout
-        active_tab={"Repayments"}
+        active_tab={"Schedules"}
         active_icon={<CircleNotificationsOutlinedIcon />}
       />
 

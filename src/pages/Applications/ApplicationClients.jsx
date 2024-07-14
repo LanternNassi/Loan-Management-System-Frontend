@@ -16,17 +16,17 @@ export default function ApplicationClients({open  , onToggleDrawer , onSelection
     const createClientHeaders = React.useCallback(() => {
         const headers = [
             {
-                id: 'id',
-                numeric: false,
-                disablePadding: false,
-                label: 'Client ID',
-                alignment: 'left',
-            },
-            {
                 id: 'firstName',
                 numeric: false,
                 disablePadding: false,
-                label: 'Names',
+                label: 'First Name',
+                alignment: 'left',
+            },
+            {
+                id: 'otherNames',
+                numeric: false,
+                disablePadding: false,
+                label: 'Other Names',
                 alignment: 'left',
             },
             {

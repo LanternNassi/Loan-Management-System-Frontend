@@ -21,6 +21,11 @@ import CircleNotificationsOutlinedIcon from "@mui/icons-material/CircleNotificat
 import AccountBalanceOutlinedIcon from "@mui/icons-material/AccountBalanceOutlined";
 import DashboardCustomizeOutlinedIcon from "@mui/icons-material/DashboardCustomizeOutlined";
 import AccountCircleOutlinedIcon from "@mui/icons-material/AccountCircleOutlined";
+import AddCardOutlinedIcon from '@mui/icons-material/AddCardOutlined';
+import CreditScoreOutlinedIcon from '@mui/icons-material/CreditScoreOutlined';
+import HailOutlinedIcon from '@mui/icons-material/HailOutlined';
+import PublishedWithChangesOutlinedIcon from '@mui/icons-material/PublishedWithChangesOutlined';
+
 import AppsIcon from "@mui/icons-material/Apps";
 import InboxIcon from "@mui/icons-material/MoveToInbox";
 import MenuIcon from "@mui/icons-material/Menu";
@@ -65,7 +70,12 @@ export default function DefaultLayout({ active_tab, active_icon }) {
     {
       text: "Clients",
       link: "/Clients",
-      icon: <CircleNotificationsOutlinedIcon />,
+      icon: <HailOutlinedIcon />,
+    },
+    {
+      text: "Accounts",
+      link: "/Accounts",
+      icon: <AddCardOutlinedIcon />,
     },
   ];
 
@@ -86,6 +96,24 @@ export default function DefaultLayout({ active_tab, active_icon }) {
       icon: <RequestPageOutlinedIcon />,
     },
   ];
+
+  const SavingsSection = [
+    {
+      text: "Deposit Savings",
+      link: "/Deposit",
+      icon: <AddCardOutlinedIcon />,
+    },
+    {
+      text: "Withdraw Savings",
+      link: "/Withdraw",
+      icon: <CreditScoreOutlinedIcon />,
+    },
+    {
+      text: "Transfer Savings",
+      link: "/TransferSavings",
+      icon: <PublishedWithChangesOutlinedIcon/>,
+    },
+  ]
 
   const LayoutItem = (component) => (
     <ListItem
@@ -152,7 +180,7 @@ export default function DefaultLayout({ active_tab, active_icon }) {
   return (
     <>
       <div className="rootheader">
-        <NavOpenDiv sx={{ width: "30vw" }}>
+        <NavOpenDiv sx={{ width: "33vw" }}>
           <Button
             onClick={toggleDrawer(true)}
             variant="outlined"
@@ -211,23 +239,44 @@ export default function DefaultLayout({ active_tab, active_icon }) {
           </div>
         </Divider>
       </HeaderDiv>
-      <Drawer open={Open} onClose={toggleDrawer(false)}>
+      <Drawer style={{
+        minHeight: "40vh",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "space-around",
+        flexGrow: 1,
+        maxHeight: "300vh",
+        overflowY: "scroll",
+        gap: "16px",
+        paddingBottom: "16px",
+      }} open={Open} onClose={toggleDrawer(false)}>
         <div className="heading">
-          <Typography style={{ fontSize: "24px" }} variant="h5">
-            General
+          <br/>
+          <Typography style={{fontSize: "17px" , fontWeight : 'bold' }} variant="h5">
+            General Management
           </Typography>
         </div>
         <Divider />
         {drawerList(Generalsections)}
 
         <SectionHeader>
-          <Typography style={{ fontSize: "17px" }} variant="h6">
+          <Typography style={{ fontSize: "17px", fontWeight : 'bold' }} variant="h6">
             Loan Management
           </Typography>
         </SectionHeader>
         <Divider />
         {drawerList(Loanssections)}
+        <SectionHeader>
+          <Typography style={{ fontSize: "17px" , fontWeight : 'bold' }} variant="h6">
+            Savings Management
+          </Typography>
+        </SectionHeader>
+        <Divider />
+        {drawerList(SavingsSection)}
       </Drawer>
+
+
     </>
   );
 }

@@ -10,17 +10,22 @@ import LoanDisbursments from "./pages/Disbursments/LoanDisbursments";
 import LoanRepayments from "./pages/Repayments/LoanRepayments";
 import Login from "./pages/Auth/Login";
 import Users from "./pages/Users/Users";
+import DepositSavings from "./pages/DepositSavings/DepositSavings";
+import WithDrawSavings from "./pages/WithDrawSavings/WithdDrawSavings";
+import Accounts from "./pages/Accounts/Accounts";
+
+import { isTokenExpired } from "./AxiosInstance";
 
 import { useSelector, useDispatch } from "react-redux";
 
 const ProtectedRoute = ({ element, ...rest }) => {
-  const User = localStorage.getItem("User");
-  return User ? element : <Navigate to="/login" />;
+  // const User = localStorage.getItem("User");
+  return !isTokenExpired() ? element : <Navigate to="/login" />;
 };
 
 const AdminOnlyRoute = ({ element, ...rest }) => {
-  const User = localStorage.getItem("User");
-  if (!User) {
+  // const User = localStorage.getItem("User");
+  if (isTokenExpired()) {
     return <Navigate to="/login" />;
   }
   const access_level = JSON.parse(localStorage.getItem("User")).role;
@@ -75,6 +80,22 @@ function App() {
           path="/LoanRepayments"
           element={<ProtectedRoute element={<LoanRepayments />} />}
         />
+
+        <Route
+          path="/Deposit"
+          element={<ProtectedRoute element={<DepositSavings />} />}
+        />
+
+        <Route
+          path="/Withdraw"
+          element={<ProtectedRoute element={<WithDrawSavings />} />}
+        />
+
+        <Route
+          path="/Accounts"
+          element={<ProtectedRoute element={<Accounts />} />}
+        />
+
       </Routes>
     </>
   );

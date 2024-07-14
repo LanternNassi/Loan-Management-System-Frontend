@@ -7,7 +7,7 @@ import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
 import CardHeader from "@mui/material/CardHeader";
-import styled from "@emotion/styled";
+import { styled } from '@mui/system';
 
 import NormalTable from "../../components/NormalTable";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -112,10 +112,18 @@ export default function Loans() {
   const createLoansHeaders = () => {
     const headers = [
       {
-        id: "application",
+        id: "clientId",
         numeric: false,
         disablePadding: false,
-        label: "Application",
+        label: "client",
+        alignment: "left",
+        LoanClientName: true,
+      },
+      {
+        id: "id",
+        numeric: false,
+        disablePadding: false,
+        label: "Loan number",
         alignment: "left",
       },
       {
@@ -425,7 +433,7 @@ export default function Loans() {
         </div>
 
         {loans != null ? (
-          <div style={{ width: "90vw", paddingTop: "20px" }}>
+          <div style={{ width: "98vw", paddingTop: "20px" }}>
             <NormalTable
               heading={"Loans"}
               OnSelection={OnSelection}

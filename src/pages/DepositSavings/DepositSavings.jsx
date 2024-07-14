@@ -21,18 +21,21 @@ import Divider from "@mui/material/Divider";
 import NormalTable from "../../components/NormalTable";
 import CustomSearch from "../../components/CustomSearch";
 import { styled } from '@mui/system';
+import AddCardOutlinedIcon from "@mui/icons-material/AddCardOutlined";
 
 import { Custom_Axios } from "../../AxiosInstance";
 // import { add_token } from "../../redux/state";
-import MenuItem from "@mui/material/MenuItem";
 
 // import Box from '@mui/material/Box';
 import TextField from "@mui/material/TextField";
 import Edit from "../../components/Edit";
+import ApplicationClients from "../Applications/ApplicationClients";
 
 // import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import LoadingButton from "@mui/lab/LoadingButton";
 import SaveIcon from "@mui/icons-material/Save";
+import PersonAddOutlinedIcon from "@mui/icons-material/PersonAddOutlined";
+import Alert from "@mui/material/Alert";
 
 import FeedBack from "../../components/FeedBack";
 
@@ -60,71 +63,120 @@ const Actions = styled("div")(() => ({
   height: "10vh",
 }));
 
-export default function Users() {
-  const [users, setUsers] = React.useState(null);
+export default function DepositSavings() {
+  const [deposits, setDeposits] = React.useState(null);
   const [headers, setHeaders] = React.useState([]);
-  const [selected_items, setSelectedUsers] = React.useState([]);
+  const [selected_deposits, setSelectedDeposits] = React.useState([]);
   const [searchValue, setSearchValue] = React.useState("");
   const [edit, setedit] = React.useState(false);
   const [submitting, setsubmitting] = React.useState(false);
   const [feedback, setfeedback] = React.useState(null);
-  // const searchInputRef = React.useRef(null);
+  const [clientView, setClientView] = React.useState(false);
 
-  const [active_id, setactive_id] = React.useState("");
-  const [username, setusername] = React.useState("");
-  const [email, setemail] = React.useState("");
-  const [role, setrole] = React.useState("");
+  const [selectedclient, setselectedclient] = React.useState(null);
+  const [selectedclientName, setselectedclientName] = React.useState(null);
+
+  const [active_account, set_active_account] = React.useState(null);
 
   const token = useSelector((state) => state.AppReducer.token);
   var CustomAxios = Custom_Axios(token);
 
   const OnSelection = React.useCallback((selected) => {
-    setSelectedUsers(selected);
+    setSelectedDeposits(selected);
   }, []);
 
-  const SearchUser = React.useCallback((keywords) => {
-      const params = { keywords };
-      CustomAxios.get('/Users', { params }).then((response) => {
-          if (response.status === 200) {
-              setUsers(response.data);
-          }
-      });
-  }, []);
+  const AddDeposit = (event) => {
+    event.preventDefault();
+    const formData = new FormData(event.target);
 
-  const createUserHeaders = React.useCallback(() => {
+    const deposit = {
+        accountId : active_account.id
+    };
+    for (const [key, value] of formData.entries()) {
+      deposit[key] = value;
+    }
+    setsubmitting(true);
+
+    CustomAxios.post("/Account/Deposits", deposit).then((response) => {
+      if (response.status === 201) {
+        setfeedback({
+          status: "success",
+          message: "Saved successfully",
+        });
+        setsubmitting(false);
+        setedit(false);
+        FetchDeposits({client : active_account.client.id})
+
+        setTimeout(() => {
+          setfeedback(null);
+        }, 4000);
+
+      }
+    });
+  };
+
+  const FetchAccountByClient = (id, OnComplete) => {
+    let params = { client: id };
+    CustomAxios.get("/Accounts", { params }).then((response) => {
+      if (response.status === 200) {
+        OnComplete(response.data);
+      }
+    });
+  };
+
+  const DeleteDeposit = (id) => {
+    CustomAxios.delete('/Account/Deposits/'+id).then((response)=>{
+        if (response.status == 204){
+            setfeedback({
+                'status' : 'success',
+                'message' : 'Deposit deleted successfully' 
+            })
+            FetchDeposits({client : active_account.client.id})
+            setTimeout(()=>{
+                setfeedback(null)
+            },3000)
+
+        }
+    })
+}
+
+  const createDepositHeaders = React.useCallback(() => {
     const headers = [
       {
         id: "id",
         numeric: false,
         disablePadding: false,
-        label: "User ID",
+        label: "Account Number",
         alignment: "left",
       },
       {
-        id: "username",
+        id: "firstName",
         numeric: false,
         disablePadding: false,
-        label: "UserName",
+        label: "Client",
         alignment: "left",
+        transaction_name: true,
       },
       {
-        id: "email",
+        id: "amount",
         numeric: false,
         disablePadding: true,
-        label: "Email",
+        label: "Amount Deposited",
         alignment: "left",
+        money: true,
       },
       {
-        id: "role",
+        id: "description",
         numeric: false,
         disablePadding: true,
-        label: "Access Level",
+        label: "More Info",
+        alignment: "left",
       },
       {
         id: "addedAt",
         numeric: false,
         disablePadding: true,
-        label: "Date Added",
+        label: "Date Deposited",
         date: true,
       },
     ];
@@ -132,158 +184,43 @@ export default function Users() {
   }, []);
 
   React.useEffect(() => {
-    FetchUsers();
-  }, [submitting]);
+    FetchDeposits();
+  }, []);
 
-  const FetchUsers = (params) => {
-    setUsers(null);
-    CustomAxios.get("/Users", { params }).then((response) => {
+  const FetchDeposits = (params = {}) => {
+    setDeposits(null);
+    CustomAxios.get("/Account/Deposits", { params }).then((response) => {
       if (response.status === 200) {
-        setUsers(response.data);
-        createUserHeaders();
+        setDeposits(response.data.data);
+        createDepositHeaders();
       }
     });
   };
-
-  const GetUserById = (id, onComplete) => {
-    CustomAxios.get("/Users/" + id).then((response) => {
-      if (response.status === 200) {
-        onComplete(response.data);
-      }
-    });
-  };
-
-  const clearFields = () => {
-    setusername("");
-    setemail("");
-    setrole("");
-    setactive_id("");
-  };
-
-  const AddUser = (event) => {
-    event.preventDefault();
-    const formData = new FormData(event.target);
-
-    const user = {};
-    for (const [key, value] of formData.entries()) {
-      user[key] = value;
-    }
-    setsubmitting(true);
-
-    CustomAxios.post("/Users", user).then((response) => {
-      if (response.status === 200) {
-        setfeedback({
-          status: "success",
-          message: "Saved successfully",
-        });
-        setsubmitting(false);
-        setedit(false);
-        // FetchClients()
-
-        setTimeout(() => {
-          setfeedback(null);
-        }, 4000);
-
-        clearFields();
-      }
-    });
-  };
-
-  const UpdateUser = (event) => {
-    event.preventDefault();
-    const formData = new FormData(event.target);
-
-    const user = {
-      id: active_id,
-    };
-    for (const [key, value] of formData.entries()) {
-      user[key] = value;
-    }
-    setsubmitting(true);
-
-    CustomAxios.put("/Users/" + active_id, user).then((response) => {
-      if (response.status === 204) {
-        setfeedback({
-          status: "success",
-          message: "Updated successfully",
-        });
-        setsubmitting(false);
-        setedit(false);
-        // FetchClients()
-
-        setTimeout(() => {
-          setfeedback(null);
-        }, 4000);
-
-        clearFields();
-      }
-    });
-  };
-
-  const DeleteUser = (id) => {
-    CustomAxios.delete("/Users/" + id).then((response) => {
-      if (response.status == 204) {
-        setfeedback({
-          status: "success",
-          message: "Deleted successfully",
-        });
-        FetchUsers();
-        setTimeout(() => {
-          setfeedback(null);
-        }, 4000);
-
-        clearFields();
-      }
-    });
-  };
-
-  // console.log(firstName)
 
   const Fields = () => (
     <>
-      {/* <TextField sx = {{width : '25vw'}} onChange={(event) => {setfirstName(event.target.value)}} value = {firstName} name="firstName" label="First Name" variant="outlined" /> */}
-
       <TextField
         sx={{ width: "25vw" }}
-        defaultValue={username}
-        name="username"
-        label="UserName"
+        defaultValue={active_account.id}
+        name="accountId"
+        label="Account"
         variant="outlined"
-      />
-      <TextField
-        sx={{ width: "25vw" }}
-        defaultValue={email}
-        name="email"
-        label="Email"
-        variant="outlined"
+        disabled
       />
       <TextField
         sx={{ width: "25vw" }}
         defaultValue={""}
-        name="passwordHash"
-        type="password"
-        label="Password"
+        name="amount"
+        label="Amount to Deposit"
         variant="outlined"
       />
-
       <TextField
-        select
         sx={{ width: "25vw" }}
-        defaultValue={role}
-        name="role"
-        label="Access Level"
-        variant="outlined"
-      >
-        <MenuItem key={"admin"} value={"admin"}>
-          Admin
-        </MenuItem>
-
-        <MenuItem key={"normal"} value={"normal"}>
-          Normal
-        </MenuItem>
-
-      </TextField>
-
+        name="description"
+        label="More Information"
+        multiline
+        rows={4}
+      />
       <LoadingButton
         type="submit"
         sx={{ width: "25vw", height: "8vh" }}
@@ -305,8 +242,8 @@ export default function Users() {
   return (
     <div className="root">
       <DefaultLayout
-        active_tab={"Users"}
-        active_icon={<CircleNotificationsOutlinedIcon />}
+        active_tab={"Deposits"}
+        active_icon={<AddCardOutlinedIcon />}
       />
 
       {/* <FeedBack open ={(feedback != null)?(true):(false)} message={feedback.message} status={feedback.status} /> */}
@@ -331,9 +268,19 @@ export default function Users() {
         <Actions>
           <Button
             onClick={() => {
-              if (active_id) {
-                clearFields();
+              if (!active_account) {
+                setfeedback({
+                  status: "error",
+                  message: "Please select an account first to add a deposit",
+                });
+
+                setTimeout(() => {
+                  setfeedback(null);
+                }, 3000);
+
+                return;
               }
+
               setedit(true);
             }}
             variant="contained"
@@ -342,34 +289,12 @@ export default function Users() {
             Add
           </Button>
 
-          <Button
-            onClick={async () => {
-              GetUserById(selected_items[0], (data) => {
-                setusername(data.username)
-                setemail(data.email)
-                setrole(data.role)
-                setactive_id(data.id);
-                setedit(true);
-              });
-            }}
-            disabled={!selected_items.length}
-            variant="contained"
-            startIcon={<SyncAltOutlinedIcon />}
-          >
-            Update
-          </Button>
-
+    
           <Button
             onClick={() => {
-                GetUserById(selected_items[0], (data) => {
-                    setusername(data.username)
-                    setemail(data.email)
-                    setrole(data.role)
-                    setactive_id(data.id);
-                    DeleteUser(data.id)
-                  });
+                DeleteDeposit(selected_deposits[0])
             }}
-            disabled={!selected_items.length}
+            disabled={!selected_deposits.length}
             variant="contained"
             startIcon={<DeleteIcon />}
           >
@@ -377,10 +302,8 @@ export default function Users() {
           </Button>
 
           <Button
-            onClick={() => {
-              console.log(selected_items);
-            }}
-            variant='contained'
+            onClick={() => {}}
+            variant="contained"
             startIcon={<ExitToAppOutlinedIcon />}
           >
             EXCEL
@@ -410,36 +333,37 @@ export default function Users() {
           style={{
             display: "flex",
             flexDirection: "row",
-            justifyContent: "flex-end",
+            justifyContent: "space-between",
             alignItems: "center",
             width: "90vw",
             height: "10vh",
           }}
         >
-          <CustomSearch
-            value={searchValue}
-            onChange={(value) => {
-              setSearchValue(value);
-              if (value.length >= 3) {
-                SearchUser(value);
-              }
-              if (value == "") {
-                SearchUser(null);
-              }
+          <Alert
+            variant="outlined"
+            severity={selectedclient ? "success" : "warning"}
+          >
+            Active Client : {selectedclientName}
+          </Alert>
+
+          <Button
+            onClick={() => {
+              setClientView(true);
             }}
-            placeholder="Search User"
-            icon_1={<SearchIcon />}
-            icon_2={<MenuIcon />}
-          />
+            variant="contained"
+            startIcon={<PersonAddOutlinedIcon />}
+          >
+            Select client
+          </Button>
         </div>
 
-        {users != null ? (
+        {deposits != null ? (
           <div style={{ width: "90vw", paddingTop: "20px" }}>
             <NormalTable
-              heading={"Users"}
+              heading={"Account Deposits"}
               OnSelection={OnSelection}
               headers={headers}
-              table_rows={users}
+              table_rows={deposits}
             />
           </div>
         ) : (
@@ -451,12 +375,42 @@ export default function Users() {
 
       <Edit
         open={edit}
-        Heading={active_id ? "UPDATE " + username : "ADD User"}
-        onSubmit={active_id ? UpdateUser : AddUser}
+        Heading={"ADD DEPOSIT"}
+        onSubmit={AddDeposit}
         toggleDrawer={toggleEditDrawer}
       >
         <Fields />
       </Edit>
+      <ApplicationClients
+        open={clientView}
+        onSelection={(selectedclients) => {
+          if (selectedclients.length > 0) {
+            setfeedback({
+              status: "info",
+              message: "Client " + selectedclients[0] + " selected",
+            });
+
+            setselectedclient(selectedclients[0]);
+            FetchDeposits({ client: selectedclients[0] });
+            setClientView(false);
+            // FetchClientById(selectedclients[0] , (data)=>{
+            //   setselectedclientName(data.firstName + " " + data.otherNames)
+            // })
+            FetchAccountByClient(selectedclients[0], (data) => {
+              set_active_account(data[0]);
+              setselectedclientName(
+                data[0].client.firstName + " " + data[0].client.otherNames
+              );
+            });
+            setTimeout(() => {
+              setfeedback(null);
+            }, 4000);
+          }
+        }}
+        onToggleDrawer={(close) => {
+          setClientView(close);
+        }}
+      />
     </div>
   );
 }

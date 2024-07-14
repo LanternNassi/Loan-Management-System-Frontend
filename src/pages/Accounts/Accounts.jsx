@@ -60,223 +60,227 @@ const Actions = styled('div')(() => ({
 }));
 
 
-export default function Clients() {
-    const [clients, setClients] = React.useState(null);
+export default function Accounts() {
+    const [accounts, setAccounts] = React.useState(null);
     const [headers, setHeaders] = React.useState([]);
-    const [selected_items, setSelectedClients] = React.useState([]);
+    const [selected_items, setSelectedAccounts] = React.useState([]);
     const [searchValue, setSearchValue] = React.useState('');
     const [edit , setedit] = React.useState(false)
     const [submitting, setsubmitting] = React.useState(false)
     const [feedback , setfeedback] = React.useState(null)
     // const searchInputRef = React.useRef(null);
 
-    const [active_id , setactive_id] = React.useState('')
-    const [firstName , setfirstName] = React.useState('')
-    const [otherNames, setotherNames] = React.useState('')
-    const [contact , setcontact] = React.useState('')
-    const [address , setaddress] = React.useState('')
-    const [nin , setnin] = React.useState('')
-
+    
 
     const token = useSelector(state => state.AppReducer.token);
     var CustomAxios = Custom_Axios(token)
 
     const OnSelection = React.useCallback((selected) => {
-        setSelectedClients(selected);
+        setSelectedAccounts(selected);
     }, []);
 
-    const SearchClient = React.useCallback((keywords) => {
-        const params = { keywords };
-        CustomAxios.get('/Clients', { params }).then((response) => {
-            if (response.status === 200) {
-                setClients(response.data);
-            }
-        });
-    }, []);
+    // const SearchClient = React.useCallback((keywords) => {
+    //     const params = { keywords };
+    //     CustomAxios.get('/Clients', { params }).then((response) => {
+    //         if (response.status === 200) {
+    //             setClients(response.data);
+    //         }
+    //     });
+    // }, []);
 
     
-    const createClientHeaders = React.useCallback(() => {
+    const createAccountHeaders = React.useCallback(() => {
         const headers = [
             {
-                id: 'firstName',
+                id: 'id',
                 numeric: false,
                 disablePadding: false,
-                label: 'First Name',
+                label: 'Account Number',
                 alignment: 'left',
             },
             {
-                id: 'otherNames',
+                id: 'clientId',
                 numeric: false,
                 disablePadding: false,
-                label: 'Other Names',
+                label: 'client',
+                alignment: 'left',
+                clientName: true,
+            },
+            
+            {
+                id: 'type',
+                numeric: false,
+                disablePadding: true,
+                label: 'Type',
                 alignment: 'left',
             },
             {
-                id: 'contact',
+                id: 'balance',
+                numeric: false,
+                disablePadding: false,
+                label: 'Account Balance',
+                alignment: 'left',
+                money: true
+            },
+            {
+                id: 'interestRate',
                 numeric: false,
                 disablePadding: true,
-                label: 'Contacts',
+                label: 'Interest Rate (%)',
                 alignment: 'left',
             },
             {
-                id: 'address',
+                id: "addedAt",
                 numeric: false,
                 disablePadding: true,
-                label: 'Address',
-                alignment: 'left',
+                label: "Date created",
+                date: true,
             },
             {
-                id: 'nin',
+                id: "updatedAt",
                 numeric: false,
                 disablePadding: true,
-                label: 'NIN number'
-            },
-            {
-                id: 'addedAt',
-                numeric: false,
-                disablePadding: true,
-                label: 'Date Joined',
-                date : true
+                label: "Last Transaction Date",
+                date: true,
             }
         ];
         setHeaders(headers);
     }, []);
 
     React.useEffect(() => {
-        FetchClients()
+        FetchAccounts()
     }, []);
 
-    const FetchClients = () => {
-        setClients(null)
-        CustomAxios.get('/Clients').then((response) => {
+    const FetchAccounts = () => {
+        setAccounts(null)
+        CustomAxios.get('/Accounts').then((response) => {
             if (response.status === 200) {
-                setClients(response.data);
-                createClientHeaders();
+                setAccounts(response.data);
+                createAccountHeaders();
             }
         });
     }
 
-    const GetClientById = (id , onComplete) => {
-        CustomAxios.get('/Clients/' + id).then((response) => {
-            if (response.status === 200) {
-                onComplete(response.data)
-            }
-        });
-    }
+    // const GetClientById = (id , onComplete) => {
+    //     CustomAxios.get('/Clients/' + id).then((response) => {
+    //         if (response.status === 200) {
+    //             onComplete(response.data)
+    //         }
+    //     });
+    // }
 
-    const clearFields = () => {
-        setfirstName('')
-        setotherNames('')
-        setcontact('')
-        setaddress('')
-        setnin('')
-        setactive_id('')
-    }
+    // const clearFields = () => {
+    //     setfirstName('')
+    //     setotherNames('')
+    //     setcontact('')
+    //     setaddress('')
+    //     setnin('')
+    //     setactive_id('')
+    // }
 
-    const AddClient = (event) => {
-        event.preventDefault();
-        const formData = new FormData(event.target);
+    // const AddClient = (event) => {
+    //     event.preventDefault();
+    //     const formData = new FormData(event.target);
 
-        const client = {}
-        for(const[key , value] of formData.entries()){
-            client[key] = value
-        }
-        setsubmitting(true)
+    //     const client = {}
+    //     for(const[key , value] of formData.entries()){
+    //         client[key] = value
+    //     }
+    //     setsubmitting(true)
 
-        CustomAxios.post('/Clients' , client).then((response)=>{
-            if (response.status === 201){
-                setfeedback({
-                    'status' : 'success',
-                    'message' : 'Saved successfully' 
-                })
-                setsubmitting(false)
-                setedit(false)
-                FetchClients()
+    //     CustomAxios.post('/Clients' , client).then((response)=>{
+    //         if (response.status === 201){
+    //             setfeedback({
+    //                 'status' : 'success',
+    //                 'message' : 'Saved successfully' 
+    //             })
+    //             setsubmitting(false)
+    //             setedit(false)
+    //             FetchClients()
 
-                setTimeout(()=>{
-                    setfeedback(null)
-                },4000)
+    //             setTimeout(()=>{
+    //                 setfeedback(null)
+    //             },4000)
 
-                clearFields()
-            }
-        })
+    //             clearFields()
+    //         }
+    //     })
 
-    }
+    // }
 
 
-    const UpdateClient = (event) => {
-        event.preventDefault();
-        const formData = new FormData(event.target);
+    // const UpdateClient = (event) => {
+    //     event.preventDefault();
+    //     const formData = new FormData(event.target);
 
-        const client = {
-            'id' : active_id
-        }
-        for(const[key , value] of formData.entries()){
-            client[key] = value
-        }
-        setsubmitting(true)
+    //     const client = {
+    //         'id' : active_id
+    //     }
+    //     for(const[key , value] of formData.entries()){
+    //         client[key] = value
+    //     }
+    //     setsubmitting(true)
 
-        CustomAxios.put('/Clients/'+active_id , client).then((response)=>{
-            if (response.status === 204){
-                setfeedback({
-                    'status' : 'success',
-                    'message' : 'Updated successfully' 
-                })
-                setsubmitting(false)
-                setedit(false)
-                FetchClients()
+    //     CustomAxios.put('/Clients/'+active_id , client).then((response)=>{
+    //         if (response.status === 204){
+    //             setfeedback({
+    //                 'status' : 'success',
+    //                 'message' : 'Updated successfully' 
+    //             })
+    //             setsubmitting(false)
+    //             setedit(false)
+    //             FetchClients()
 
-                setTimeout(()=>{
-                    setfeedback(null)
-                },4000)
+    //             setTimeout(()=>{
+    //                 setfeedback(null)
+    //             },4000)
 
-                clearFields()
-            }
-        })
+    //             clearFields()
+    //         }
+    //     })
 
-    }
+    // }
 
-    const DeleteClient = (id) => {
-        CustomAxios.delete('/Clients/'+id).then((response)=>{
-            if (response.status == 204){
-                setfeedback({
-                    'status' : 'success',
-                    'message' : 'Deleted successfully' 
-                })
-                FetchClients()
-                setTimeout(()=>{
-                    setfeedback(null)
-                },4000)
+    // const DeleteClient = (id) => {
+    //     CustomAxios.delete('/Clients/'+id).then((response)=>{
+    //         if (response.status == 204){
+    //             setfeedback({
+    //                 'status' : 'success',
+    //                 'message' : 'Deleted successfully' 
+    //             })
+    //             FetchClients()
+    //             setTimeout(()=>{
+    //                 setfeedback(null)
+    //             },4000)
 
-                clearFields()
-            }
-        })
-    }
+    //             clearFields()
+    //         }
+    //     })
+    // }
 
-    console.log(firstName)
 
-    const Fields = () => (
-        <>
-            {/* <TextField sx = {{width : '25vw'}} onChange={(event) => {setfirstName(event.target.value)}} value = {firstName} name="firstName" label="First Name" variant="outlined" /> */}
+    // const Fields = () => (
+    //     <>
+    //         {/* <TextField sx = {{width : '25vw'}} onChange={(event) => {setfirstName(event.target.value)}} value = {firstName} name="firstName" label="First Name" variant="outlined" /> */}
 
-            <TextField sx = {{width : '25vw'}} defaultValue = {firstName} name="firstName" label="First Name" variant="outlined" />
-            <TextField sx = {{width : '25vw'}} defaultValue = {otherNames} name="otherNames" label="Other Name" variant="outlined" />
-            <TextField sx = {{width : '25vw'}} defaultValue={contact} name="contact" label="Telephone" variant="outlined" />
-            <TextField sx = {{width : '25vw'}} defaultValue={address} name="address" label="Address" variant="outlined" />
-            <TextField sx = {{width : '25vw'}} defaultValue={nin} name="nin" label="NIN" variant="outlined" />
-            <LoadingButton
-                type = 'submit'
-                sx = {{width : '25vw' , height : '8vh'}}
-                variant="contained"
-                tabIndex={-1}
-                loading = {submitting}
-                loadingPosition="start"
-                startIcon={<SaveIcon fontSize="large" />}
-            >
-                <span>Submit</span>
-            </LoadingButton>
-        </>
-    )
+    //         <TextField sx = {{width : '25vw'}} defaultValue = {firstName} name="firstName" label="First Name" variant="outlined" />
+    //         <TextField sx = {{width : '25vw'}} defaultValue = {otherNames} name="otherNames" label="Other Name" variant="outlined" />
+    //         <TextField sx = {{width : '25vw'}} defaultValue={contact} name="contact" label="Telephone" variant="outlined" />
+    //         <TextField sx = {{width : '25vw'}} defaultValue={address} name="address" label="Address" variant="outlined" />
+    //         <TextField sx = {{width : '25vw'}} defaultValue={nin} name="nin" label="NIN" variant="outlined" />
+    //         <LoadingButton
+    //             type = 'submit'
+    //             sx = {{width : '25vw' , height : '8vh'}}
+    //             variant="contained"
+    //             tabIndex={-1}
+    //             loading = {submitting}
+    //             loadingPosition="start"
+    //             startIcon={<SaveIcon fontSize="large" />}
+    //         >
+    //             <span>Submit</span>
+    //         </LoadingButton>
+    //     </>
+    // )
 
     const toggleEditDrawer = (newOpen) => {
         setedit(newOpen);
@@ -286,12 +290,12 @@ export default function Clients() {
   return (
     <div className='root'>
 
-            <DefaultLayout active_tab={"Clients"} active_icon={<CircleNotificationsOutlinedIcon />} />
+            <DefaultLayout active_tab={"Accounts"} active_icon={<CircleNotificationsOutlinedIcon />} />
 
             {/* <FeedBack open ={(feedback != null)?(true):(false)} message={feedback.message} status={feedback.status} /> */}
             <FeedBack open ={(feedback != null)?(true):(false)} message={(feedback != null)?(feedback.message):('')} status={(feedback != null)?(feedback.status):('success')} />
 
-            <Statistics>
+            {/* <Statistics>
                 <Card sx={{ minWidth: 275 }}>
                     <CardHeader title={'Number of Clients'} />
                     <CardContent>
@@ -318,9 +322,9 @@ export default function Clients() {
                         </Typography>
                     </CardContent>
                 </Card>
-            </Statistics>
+            </Statistics> */}
 
-            <div style={{
+            {/* <div style={{
                 display: 'flex',
                 position: 'relative',
                 top: 10,
@@ -377,7 +381,7 @@ export default function Clients() {
                         EXCEL
                     </Button>
                 </Actions>
-            </div>
+            </div> */}
 
             <div style={{
                 position: 'relative',
@@ -389,12 +393,7 @@ export default function Clients() {
                 justifyContent: 'space-around',
                 alignItems: 'center',
             }}>
-                <Divider style={{ width: '80vw' }} textAlign="center">
-                    <Typography sx={{ fontSize: 14 }} color="text.primary" gutterBottom>
-                        ACTIONS
-                    </Typography>
-                </Divider>
-
+                
                 <div style = {{
                     display: 'flex',
                     flexDirection: 'row',
@@ -406,23 +405,17 @@ export default function Clients() {
                     <CustomSearch
                         value={searchValue}
                         onChange={(value) => {
-                            setSearchValue(value);
-                            if (value.length >= 3){
-                                SearchClient(value)
-                            }
-                            if (value == ''){
-                                SearchClient(null)
-                            }
+                            
                         }}
-                        placeholder="Search Client"
+                        placeholder="Search Account"
                         icon_1={<SearchIcon />}
                         icon_2={<MenuIcon />}
                     />
                 </div>
                   
-                {clients != null ? (
-                    <div style={{ width: '90vw', paddingTop: '20px' }}>
-                        <NormalTable heading={'Clients'} OnSelection={OnSelection} headers={headers} table_rows={clients} />
+                {accounts != null ? (
+                    <div style={{ width: '95vw', paddingTop: '20px' }}>
+                        <NormalTable heading={'Accounts'} OnSelection={OnSelection} headers={headers} table_rows={accounts} />
                     </div>
                 ) : (
                     <div style={{ display: 'flex' }}>
@@ -431,9 +424,7 @@ export default function Clients() {
                 )}
             </div>
 
-            <Edit open={edit} Heading= {active_id ? ('UPDATE ' + firstName) : ('ADD CLIENT')} onSubmit={active_id ? (UpdateClient) : (AddClient)} toggleDrawer={toggleEditDrawer}>
-                <Fields/>
-            </Edit>
+            
 
         </div>
 

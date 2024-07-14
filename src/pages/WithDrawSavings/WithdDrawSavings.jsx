@@ -21,18 +21,21 @@ import Divider from "@mui/material/Divider";
 import NormalTable from "../../components/NormalTable";
 import CustomSearch from "../../components/CustomSearch";
 import { styled } from '@mui/system';
+import AddCardOutlinedIcon from "@mui/icons-material/AddCardOutlined";
 
 import { Custom_Axios } from "../../AxiosInstance";
 // import { add_token } from "../../redux/state";
-import MenuItem from "@mui/material/MenuItem";
 
 // import Box from '@mui/material/Box';
 import TextField from "@mui/material/TextField";
 import Edit from "../../components/Edit";
+import ApplicationClients from "../Applications/ApplicationClients";
 
 // import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import LoadingButton from "@mui/lab/LoadingButton";
 import SaveIcon from "@mui/icons-material/Save";
+import PersonAddOutlinedIcon from "@mui/icons-material/PersonAddOutlined";
+import Alert from "@mui/material/Alert";
 
 import FeedBack from "../../components/FeedBack";
 
@@ -60,71 +63,120 @@ const Actions = styled("div")(() => ({
   height: "10vh",
 }));
 
-export default function Users() {
-  const [users, setUsers] = React.useState(null);
+export default function WithDrawSavings() {
+  const [WithDraws, setWithDraws] = React.useState(null);
   const [headers, setHeaders] = React.useState([]);
-  const [selected_items, setSelectedUsers] = React.useState([]);
+  const [selected_withdraws, setSelectedWithdraws] = React.useState([]);
   const [searchValue, setSearchValue] = React.useState("");
   const [edit, setedit] = React.useState(false);
   const [submitting, setsubmitting] = React.useState(false);
   const [feedback, setfeedback] = React.useState(null);
-  // const searchInputRef = React.useRef(null);
+  const [clientView, setClientView] = React.useState(false);
 
-  const [active_id, setactive_id] = React.useState("");
-  const [username, setusername] = React.useState("");
-  const [email, setemail] = React.useState("");
-  const [role, setrole] = React.useState("");
+  const [selectedclient, setselectedclient] = React.useState(null);
+  const [selectedclientName, setselectedclientName] = React.useState(null);
+
+  const [active_account, set_active_account] = React.useState(null);
 
   const token = useSelector((state) => state.AppReducer.token);
   var CustomAxios = Custom_Axios(token);
 
   const OnSelection = React.useCallback((selected) => {
-    setSelectedUsers(selected);
+    setSelectedWithdraws(selected);
   }, []);
 
-  const SearchUser = React.useCallback((keywords) => {
-      const params = { keywords };
-      CustomAxios.get('/Users', { params }).then((response) => {
-          if (response.status === 200) {
-              setUsers(response.data);
-          }
-      });
-  }, []);
+  const AddWithDraw = (event) => {
+    event.preventDefault();
+    const formData = new FormData(event.target);
 
-  const createUserHeaders = React.useCallback(() => {
+    const withdraw = {
+        accountId : active_account.id
+    };
+    for (const [key, value] of formData.entries()) {
+      withdraw[key] = value;
+    }
+    setsubmitting(true);
+
+    CustomAxios.post("/Account/Withdrawals", withdraw).then((response) => {
+      if (response.status === 201) {
+        setfeedback({
+          status: "success",
+          message: "Saved successfully",
+        });
+        setsubmitting(false);
+        setedit(false);
+        FetchWithdraws({client : active_account.client.id})
+
+        setTimeout(() => {
+          setfeedback(null);
+        }, 4000);
+
+      }
+    });
+  };
+
+  const FetchAccountByClient = (id, OnComplete) => {
+    let params = { client: id };
+    CustomAxios.get("/Accounts", { params }).then((response) => {
+      if (response.status === 200) {
+        OnComplete(response.data);
+      }
+    });
+  };
+
+  const DeleteWithDraw = (id) => {
+    CustomAxios.delete('/Account/Withdrawals/'+id).then((response)=>{
+        if (response.status == 204){
+            setfeedback({
+                'status' : 'success',
+                'message' : 'Withdraw deleted successfully' 
+            })
+            FetchWithdraws({client : active_account.client.id})
+            setTimeout(()=>{
+                setfeedback(null)
+            },3000)
+
+        }
+    })
+}
+
+  const createWithDrawsHeaders = React.useCallback(() => {
     const headers = [
       {
         id: "id",
         numeric: false,
         disablePadding: false,
-        label: "User ID",
+        label: "Account Number",
         alignment: "left",
       },
       {
-        id: "username",
+        id: "firstName",
         numeric: false,
         disablePadding: false,
-        label: "UserName",
+        label: "Client",
         alignment: "left",
+        transaction_name: true,
       },
       {
-        id: "email",
+        id: "amount",
         numeric: false,
         disablePadding: true,
-        label: "Email",
+        label: "Amount WithDawn",
         alignment: "left",
+        money: true,
       },
       {
-        id: "role",
+        id: "description",
         numeric: false,
         disablePadding: true,
-        label: "Access Level",
+        label: "More Info",
+        alignment: "left",
       },
       {
         id: "addedAt",
         numeric: false,
         disablePadding: true,
-        label: "Date Added",
+        label: "Date Withdrawn",
         date: true,
       },
     ];
@@ -132,158 +184,43 @@ export default function Users() {
   }, []);
 
   React.useEffect(() => {
-    FetchUsers();
-  }, [submitting]);
+    FetchWithdraws();
+  }, []);
 
-  const FetchUsers = (params) => {
-    setUsers(null);
-    CustomAxios.get("/Users", { params }).then((response) => {
+  const FetchWithdraws = (params = {}) => {
+    setWithDraws(null);
+    CustomAxios.get("/Account/Withdrawals", { params }).then((response) => {
       if (response.status === 200) {
-        setUsers(response.data);
-        createUserHeaders();
+        setWithDraws(response.data.data);
+        createWithDrawsHeaders();
       }
     });
   };
-
-  const GetUserById = (id, onComplete) => {
-    CustomAxios.get("/Users/" + id).then((response) => {
-      if (response.status === 200) {
-        onComplete(response.data);
-      }
-    });
-  };
-
-  const clearFields = () => {
-    setusername("");
-    setemail("");
-    setrole("");
-    setactive_id("");
-  };
-
-  const AddUser = (event) => {
-    event.preventDefault();
-    const formData = new FormData(event.target);
-
-    const user = {};
-    for (const [key, value] of formData.entries()) {
-      user[key] = value;
-    }
-    setsubmitting(true);
-
-    CustomAxios.post("/Users", user).then((response) => {
-      if (response.status === 200) {
-        setfeedback({
-          status: "success",
-          message: "Saved successfully",
-        });
-        setsubmitting(false);
-        setedit(false);
-        // FetchClients()
-
-        setTimeout(() => {
-          setfeedback(null);
-        }, 4000);
-
-        clearFields();
-      }
-    });
-  };
-
-  const UpdateUser = (event) => {
-    event.preventDefault();
-    const formData = new FormData(event.target);
-
-    const user = {
-      id: active_id,
-    };
-    for (const [key, value] of formData.entries()) {
-      user[key] = value;
-    }
-    setsubmitting(true);
-
-    CustomAxios.put("/Users/" + active_id, user).then((response) => {
-      if (response.status === 204) {
-        setfeedback({
-          status: "success",
-          message: "Updated successfully",
-        });
-        setsubmitting(false);
-        setedit(false);
-        // FetchClients()
-
-        setTimeout(() => {
-          setfeedback(null);
-        }, 4000);
-
-        clearFields();
-      }
-    });
-  };
-
-  const DeleteUser = (id) => {
-    CustomAxios.delete("/Users/" + id).then((response) => {
-      if (response.status == 204) {
-        setfeedback({
-          status: "success",
-          message: "Deleted successfully",
-        });
-        FetchUsers();
-        setTimeout(() => {
-          setfeedback(null);
-        }, 4000);
-
-        clearFields();
-      }
-    });
-  };
-
-  // console.log(firstName)
 
   const Fields = () => (
     <>
-      {/* <TextField sx = {{width : '25vw'}} onChange={(event) => {setfirstName(event.target.value)}} value = {firstName} name="firstName" label="First Name" variant="outlined" /> */}
-
       <TextField
         sx={{ width: "25vw" }}
-        defaultValue={username}
-        name="username"
-        label="UserName"
+        defaultValue={active_account.id}
+        name="accountId"
+        label="Account"
         variant="outlined"
-      />
-      <TextField
-        sx={{ width: "25vw" }}
-        defaultValue={email}
-        name="email"
-        label="Email"
-        variant="outlined"
+        disabled
       />
       <TextField
         sx={{ width: "25vw" }}
         defaultValue={""}
-        name="passwordHash"
-        type="password"
-        label="Password"
+        name="amount"
+        label="Amount to Withdraw"
         variant="outlined"
       />
-
       <TextField
-        select
         sx={{ width: "25vw" }}
-        defaultValue={role}
-        name="role"
-        label="Access Level"
-        variant="outlined"
-      >
-        <MenuItem key={"admin"} value={"admin"}>
-          Admin
-        </MenuItem>
-
-        <MenuItem key={"normal"} value={"normal"}>
-          Normal
-        </MenuItem>
-
-      </TextField>
-
+        name="description"
+        label="More Information"
+        multiline
+        rows={4}
+      />
       <LoadingButton
         type="submit"
         sx={{ width: "25vw", height: "8vh" }}
@@ -305,8 +242,8 @@ export default function Users() {
   return (
     <div className="root">
       <DefaultLayout
-        active_tab={"Users"}
-        active_icon={<CircleNotificationsOutlinedIcon />}
+        active_tab={"Withdraws"}
+        active_icon={<AddCardOutlinedIcon />}
       />
 
       {/* <FeedBack open ={(feedback != null)?(true):(false)} message={feedback.message} status={feedback.status} /> */}
@@ -331,9 +268,19 @@ export default function Users() {
         <Actions>
           <Button
             onClick={() => {
-              if (active_id) {
-                clearFields();
+              if (!active_account) {
+                setfeedback({
+                  status: "error",
+                  message: "Please select an account first to add withdraw from",
+                });
+
+                setTimeout(() => {
+                  setfeedback(null);
+                }, 3000);
+
+                return;
               }
+
               setedit(true);
             }}
             variant="contained"
@@ -342,34 +289,12 @@ export default function Users() {
             Add
           </Button>
 
-          <Button
-            onClick={async () => {
-              GetUserById(selected_items[0], (data) => {
-                setusername(data.username)
-                setemail(data.email)
-                setrole(data.role)
-                setactive_id(data.id);
-                setedit(true);
-              });
-            }}
-            disabled={!selected_items.length}
-            variant="contained"
-            startIcon={<SyncAltOutlinedIcon />}
-          >
-            Update
-          </Button>
-
+    
           <Button
             onClick={() => {
-                GetUserById(selected_items[0], (data) => {
-                    setusername(data.username)
-                    setemail(data.email)
-                    setrole(data.role)
-                    setactive_id(data.id);
-                    DeleteUser(data.id)
-                  });
+                DeleteWithDraw(selected_withdraws[0])
             }}
-            disabled={!selected_items.length}
+            disabled={!selected_withdraws.length}
             variant="contained"
             startIcon={<DeleteIcon />}
           >
@@ -377,10 +302,8 @@ export default function Users() {
           </Button>
 
           <Button
-            onClick={() => {
-              console.log(selected_items);
-            }}
-            variant='contained'
+            onClick={() => {}}
+            variant="contained"
             startIcon={<ExitToAppOutlinedIcon />}
           >
             EXCEL
@@ -410,36 +333,37 @@ export default function Users() {
           style={{
             display: "flex",
             flexDirection: "row",
-            justifyContent: "flex-end",
+            justifyContent: "space-between",
             alignItems: "center",
             width: "90vw",
             height: "10vh",
           }}
         >
-          <CustomSearch
-            value={searchValue}
-            onChange={(value) => {
-              setSearchValue(value);
-              if (value.length >= 3) {
-                SearchUser(value);
-              }
-              if (value == "") {
-                SearchUser(null);
-              }
+          <Alert
+            variant="outlined"
+            severity={selectedclient ? "success" : "warning"}
+          >
+            Active Client : {selectedclientName}
+          </Alert>
+
+          <Button
+            onClick={() => {
+              setClientView(true);
             }}
-            placeholder="Search User"
-            icon_1={<SearchIcon />}
-            icon_2={<MenuIcon />}
-          />
+            variant="contained"
+            startIcon={<PersonAddOutlinedIcon />}
+          >
+            Select client
+          </Button>
         </div>
 
-        {users != null ? (
+        {WithDraws != null ? (
           <div style={{ width: "90vw", paddingTop: "20px" }}>
             <NormalTable
-              heading={"Users"}
+              heading={"Account(s) WithDraws"}
               OnSelection={OnSelection}
               headers={headers}
-              table_rows={users}
+              table_rows={WithDraws}
             />
           </div>
         ) : (
@@ -451,12 +375,39 @@ export default function Users() {
 
       <Edit
         open={edit}
-        Heading={active_id ? "UPDATE " + username : "ADD User"}
-        onSubmit={active_id ? UpdateUser : AddUser}
+        Heading={"WITHDRAW "}
+        onSubmit={AddWithDraw}
         toggleDrawer={toggleEditDrawer}
       >
         <Fields />
       </Edit>
+      <ApplicationClients
+        open={clientView}
+        onSelection={(selectedclients) => {
+          if (selectedclients.length > 0) {
+            setfeedback({
+              status: "info",
+              message: "Client " + selectedclients[0] + " selected",
+            });
+
+            setselectedclient(selectedclients[0]);
+            FetchWithdraws({ client: selectedclients[0] });
+            setClientView(false);
+            FetchAccountByClient(selectedclients[0], (data) => {
+              set_active_account(data[0]);
+              setselectedclientName(
+                data[0].client.firstName + " " + data[0].client.otherNames
+              );
+            });
+            setTimeout(() => {
+              setfeedback(null);
+            }, 4000);
+          }
+        }}
+        onToggleDrawer={(close) => {
+          setClientView(close);
+        }}
+      />
     </div>
   );
 }

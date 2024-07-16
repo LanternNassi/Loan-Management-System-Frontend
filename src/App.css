@@ -13,6 +13,17 @@
     flex-grow: 1;
     max-height: 300vh;
   }
+
+.dashboardRoot {
+    width: 97vw;
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    flex-grow: 1;
+    max-height: 300vh;
+}
   
   .navbar {
     width : 250;

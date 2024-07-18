@@ -6,6 +6,10 @@ import { jwtDecode } from "jwt-decode";
 
 export function isTokenExpired() {
 
+  if (localStorage.getItem('User') == null){
+    return true
+  }
+
   var token = JSON.parse(localStorage.getItem('User')).token
 
   if (!token){

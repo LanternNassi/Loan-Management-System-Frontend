@@ -35,13 +35,16 @@ const AdminOnlyRoute = ({ element, ...rest }) => {
 function App() {
   const dispatch = useDispatch();
 
-  dispatch({ type: "add_login_info", User: localStorage.getItem("User") });
-  dispatch({
-    type: "add_token",
-    token: JSON.parse(localStorage.getItem("User"))
-      ? JSON.parse(localStorage.getItem("User")).token
-      : null,
-  });
+  if (localStorage.getItem("User") != null){
+    dispatch({ type: "add_login_info", User: localStorage.getItem("User") });
+    dispatch({
+      type: "add_token",
+      token: JSON.parse(localStorage.getItem("User"))
+        ? JSON.parse(localStorage.getItem("User")).token
+        : null,
+    });
+  }
+  
 
   return (
     <>

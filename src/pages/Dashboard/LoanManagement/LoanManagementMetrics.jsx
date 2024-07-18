@@ -18,7 +18,6 @@ export default function LoanManagementMetrics({
     pending: 4,
   });
 
-  console.log(loans_metrics)
 
   const {pending_applications , ...processed_applications_metrics} = applications_metrics
 

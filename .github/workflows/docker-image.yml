@@ -38,3 +38,15 @@ jobs:
           build-args: |
             NODE_ENV=production
             VITE_BACKEND_URL=${{secrets.CC_BACKEND_URL}}
+      
+
+      - name: Build and push SHACK frontend image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: nessimntambi/shacksystemfrontend:latest
+          build-args: |
+            NODE_ENV=production
+            VITE_BACKEND_URL=${{secrets.SHACK_BACKEND_URL}}
